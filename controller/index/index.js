@@ -4,7 +4,8 @@ define(function () {
         data : function () {
             return {
                 visible : false,
-                isCollapse: true
+                isCollapse: true,
+                leftMenuTop: document.documentElement.clientHeight - 60
             }
         },
         methods: {
