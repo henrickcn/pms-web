@@ -6,7 +6,7 @@
     <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <style type="text/css">
-        html,body{padding: 0;margin: 0;}
+        html,body{padding: 0;margin: 0;background: #f8f9fb;}
         [v-cloak]{display: none;}
         .el-menu-vertical-demo:not(.el-menu--collapse) {
             width: 200px;
@@ -14,43 +14,91 @@
         }
         .left-menu{position: relative;}
         .el-header{padding: 0;}
+        .el-top-nav{background: white;border-bottom: solid 1px #e6e6e6;height: 61px;}
+        .el-footer{border-top: solid 1px #e6e6e6;background: white;}
+        .el-menu-vertical-demo{border-top: solid 1px #e6e6e6;}
+        .el-top-nav .el-menu.el-menu--horizontal{border: 0;}
+        .el-main{position: relative;}
+        #el-nav-list{position: absolute;top:0;left:0;right: 0;background: white;border-bottom: solid 1px #e6e6e6;margin-top: 1px;padding: 5px;}
+        #el-main-box{position: absolute;top:35px;left:0;right: 0;bottom: 0px;overflow:auto; }
     </style>
 </head>
 <body>
     <div id="app" v-cloak>
         <el-container>
             <el-header>
-                <el-menu style="padding: 0;" :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
-                    <el-menu-item>
-                        <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
-                            <el-radio-button :label="false">展开</el-radio-button>
-                            <el-radio-button :label="true">收起</el-radio-button>
-                        </el-radio-group>
-                    </el-menu-item>
-                    <el-menu-item index="1">酒店PMS系统</el-menu-item>
-                    <el-submenu index="2">
-                        <template slot="title">我的工作台</template>
-                        <el-menu-item index="2-1">选项1</el-menu-item>
-                        <el-menu-item index="2-2">选项2</el-menu-item>
-                        <el-menu-item index="2-3">选项3</el-menu-item>
-                        <el-submenu index="2-4">
-                            <template slot="title">选项4</template>
-                            <el-menu-item index="2-4-1">选项1</el-menu-item>
-                            <el-menu-item index="2-4-2">选项2</el-menu-item>
-                            <el-menu-item index="2-4-3">选项3</el-menu-item>
-                        </el-submenu>
-                    </el-submenu>
-                    <el-menu-item index="3" disabled>消息中心</el-menu-item>
-                    <el-menu-item index="4"><a href="https://www.ele.me" target="_blank">订单管理</a></el-menu-item>
-                </el-menu> 
+                <el-row class="el-top-nav">
+                    <el-col :span="3">
+                        <el-row type="flex">
+                            <div style="padding-top: 10px;padding-left: 15px;">
+                                <el-image style="height: 40px;width: 50px;" src="img/logo.png"></el-image>
+                            </div>
+                            <div style="line-height: 60px;padding-left: 20px;">
+                                <el-link :underline="false" @click="switchLeftMenu">
+                                    <i style="font-size: 22px;" :class="leftMenuCollapse?'el-icon-s-unfold':'el-icon-s-fold'"></i>
+                                </el-link>
+                            </div>
+
+                        </el-row>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-select style="border: 0;margin-top: 10px;" v-model="value" autocomplete filterable placeholder="请选择门店">
+                            <el-option
+                                    v-for="item in cities"
+                                    :key="item.id"
+                                    :label="item.label+' - '+item.value"
+                                    :value="item.id">
+                                <span style="float: left">{{ item.label }}</span>
+                                <span style="float: right; color: #8492a6; font-size: 12px;padding-left: 30px;">
+                                    <i class="el-icon-location-outline"></i>
+                                    {{ item.value }}
+                                </span>
+                            </el-option>
+                        </el-select>
+                    </el-col>
+                    <el-col :span="10" :offset="1">
+                        <el-menu style="padding: 0;" default-active="1" class="el-menu-demo" mode="horizontal">
+                            <el-menu-item index="1">工作台</el-menu-item>
+                            <el-menu-item index="2">订单管理</el-menu-item>
+                            <el-menu-item index="3">财务报表</el-menu-item>
+                            <el-menu-item index="4">系统设置</el-menu-item>
+                        </el-menu>
+                    </el-col>
+                    <el-col :span="6" :offset="1">
+                        <el-row type="flex" class="row-bg" justify="end">
+                            <el-col :span="6">
+                                <el-row type="flex" justify="end">
+                                    <div style="margin-right: 20px">
+                                        <el-dropdown>
+                                            <el-avatar class="el-dropdown-link" style="margin-top: 10px;cursor: pointer;" :size="40" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png">
+                                                <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png" />
+                                            </el-avatar>
+                                            <el-dropdown-menu slot="dropdown">
+                                                <el-dropdown-item>
+                                                    <i class="el-icon-user"></i>
+                                                    个人中心
+                                                </el-dropdown-item>
+                                                <el-dropdown-item divided>
+                                                    <i class="el-icon-s-promotion"></i>
+                                                    安全退出
+                                                </el-dropdown-item>
+                                            </el-dropdown-menu>
+                                        </el-dropdown>
+                                    </div>
+                                </el-row>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                </el-row>
+
             </el-header>
             <el-container>
                 <el-aside class="left-menu" width="auto">
-                    <el-menu :style="'height: '+leftMenuTop+'px'" default-active="1-4-1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" :collapse="isCollapse">
+                    <el-menu :unique-opened="true" :style="'height: '+leftMenuTop+'px'" default-active="1-4-1" class="el-menu-vertical-demo" :collapse="leftMenuCollapse">
                         <el-submenu index="1">
                             <template slot="title">
                                 <i class="el-icon-location"></i>
-                                <span slot="title">导航一{{leftMenuTop}}</span>
+                                <span slot="title">导航一</span>
                             </template>
                             <el-menu-item-group>
                                 <span slot="title">分组一</span>
@@ -65,10 +113,18 @@
                                 <el-menu-item index="1-4-1">选项1</el-menu-item>
                             </el-submenu>
                         </el-submenu>
-                        <el-menu-item index="2">
-                            <i class="el-icon-menu"></i>
-                            <span slot="title">导航二</span>
-                        </el-menu-item>
+
+                        <el-submenu index="2">
+                            <template slot="title">
+                                <i class="el-icon-menu"></i>
+                                <span slot="title">导航一</span>
+                            </template>
+                            <el-submenu index="2-1">
+                                <span slot="title">选项4</span>
+                                <el-menu-item index="2-1-1">选项1</el-menu-item>
+                            </el-submenu>
+                        </el-submenu>
+
                         <el-menu-item index="3" disabled>
                             <i class="el-icon-document"></i>
                             <span slot="title">导航三</span>
@@ -79,7 +135,24 @@
                         </el-menu-item>
                     </el-menu>
                 </el-aside>
-                <el-main>Main</el-main>
+                <el-main :style="'height: '+leftMenuTop+'px;'">
+                    <div id="el-nav-list">
+                        <el-tag size="small" effect="plain">我的工作台</el-tag>
+                    </div>
+                    <div id="el-main-box">
+
+                    </div>
+                </el-main>
+            </el-container>
+            <el-container>
+                <el-footer>
+                    <el-row :gutter="20">
+                        <el-col :span="6"><div class="grid-content bg-purple">sdsdf</div></el-col>
+                        <el-col :span="6"><div class="grid-content bg-purple">sdfsdf</div></el-col>
+                        <el-col :span="6"><div class="grid-content bg-purple">sdfds</div></el-col>
+                        <el-col :span="6"><div class="grid-content bg-purple">sdfdsf</div></el-col>
+                    </el-row>
+                </el-footer>
             </el-container>
         </el-container>
     </div>

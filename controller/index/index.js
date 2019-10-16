@@ -3,17 +3,31 @@ define(function () {
         el : '#app',
         data : function () {
             return {
+                leftMenuCollapse : false,
                 visible : false,
                 isCollapse: true,
-                leftMenuTop: document.documentElement.clientHeight - 60
+                leftMenuTop: document.documentElement.clientHeight - 121,
+                cities: [{
+                    value: '深圳',
+                    label: '新安洪浪北店',
+                    id: 1,
+                },{
+                    value: '深圳',
+                    label: '新安宝安公园店',
+                    id: 2
+                }],
+                value:[]
             }
         },
         methods: {
-            handleOpen(key, keyPath) {
+            handleOpen: function(key, keyPath) {
                 console.log(key, keyPath);
             },
-            handleClose(key, keyPath) {
+            handleClose: function(key, keyPath) {
                 console.log(key, keyPath);
+            },
+            switchLeftMenu: function () {
+                this.leftMenuCollapse = this.leftMenuCollapse ? false:true;
             }
         }
     });
