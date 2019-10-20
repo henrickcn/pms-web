@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>PMS酒店管理平台</title>
     <!-- 引入样式 -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="vendor/eui/eui.css">
     <style type="text/css">
         html,body{padding: 0;margin: 0;background: #f8f9fb;}
         [v-cloak]{display: none;}
@@ -12,15 +12,21 @@
             width: 200px;
             height: 700px;
         }
-        .left-menu{position: relative;}
+        .left-menu{position: relative;border-top: solid 1px #e6e6e6;}
         .el-header{padding: 0;}
         .el-top-nav{background: white;border-bottom: solid 1px #e6e6e6;height: 61px;}
         .el-footer{border-top: solid 1px #e6e6e6;background: white;}
-        .el-menu-vertical-demo{border-top: solid 1px #e6e6e6;}
         .el-top-nav .el-menu.el-menu--horizontal{border: 0;}
         .el-main{position: relative;}
         #el-nav-list{position: absolute;top:0;left:0;right: 0;background: white;border-bottom: solid 1px #e6e6e6;margin-top: 1px;padding: 5px;}
         #el-main-box{position: absolute;top:35px;left:0;right: 0;bottom: 0px;overflow:auto; }
+        .icon-menu{display: flex;margin-right: 50px;margin-top: 20px;}
+        .icon-menu div.icon-menu-list{width: 50px;text-align: center;}
+        .icon-menu div.icon-menu-list a i{font-size: 20px;color: #409EFF;}
+        .home-order-status{display: flex;justify-content: flex-start;}
+        .home-order-status,.home-order-status li{list-style: none;padding: 0;margin: 0}
+        .home-order-status li{padding: 15px 40px 0 0;}
+        .home-order-status li a{text-decoration: none;color: #303133;display: inline-block;}
     </style>
 </head>
 <body>
@@ -42,9 +48,9 @@
                         </el-row>
                     </el-col>
                     <el-col :span="3">
-                        <el-select style="border: 0;margin-top: 10px;" v-model="value" autocomplete filterable placeholder="请选择门店">
+                        <el-select style="border: 0;margin-top: 10px;" v-model="storeId" autocomplete filterable placeholder="请选择门店">
                             <el-option
-                                    v-for="item in cities"
+                                    v-for="item in shopStore"
                                     :key="item.id"
                                     :label="item.label+' - '+item.value"
                                     :value="item.id">
@@ -57,17 +63,27 @@
                         </el-select>
                     </el-col>
                     <el-col :span="10" :offset="1">
-                        <el-menu style="padding: 0;" default-active="1" class="el-menu-demo" mode="horizontal">
-                            <el-menu-item index="1">工作台</el-menu-item>
-                            <el-menu-item index="2">订单管理</el-menu-item>
-                            <el-menu-item index="3">财务报表</el-menu-item>
-                            <el-menu-item index="4">系统设置</el-menu-item>
+                        <el-menu style="padding: 0;" :default-active="topMenuActive" mode="horizontal">
+                            <el-menu-item index="index">工作台</el-menu-item>
+                            <el-menu-item :index="item.en_name" v-for="item in topMenu">{{ item.name }}</el-menu-item>
                         </el-menu>
                     </el-col>
                     <el-col :span="6" :offset="1">
                         <el-row type="flex" class="row-bg" justify="end">
                             <el-col :span="6">
                                 <el-row type="flex" justify="end">
+                                    <div class="icon-menu">
+                                        <div class="icon-menu-list">
+                                            <a href="">
+                                                <i class="el-icon-search"></i>
+                                            </a>
+                                        </div>
+                                        <div class="icon-menu-list">
+                                            <a href="javascript:;" @click="msgDrawer = true">
+                                                <el-badge is-dot class="item"><i class="el-icon-bell"></i></el-badge>
+                                            </a>
+                                        </div>
+                                    </div>
                                     <div style="margin-right: 20px">
                                         <el-dropdown>
                                             <el-avatar class="el-dropdown-link" style="margin-top: 10px;cursor: pointer;" :size="40" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png">
@@ -137,7 +153,7 @@
                 </el-aside>
                 <el-main :style="'height: '+leftMenuTop+'px;'">
                     <div id="el-nav-list">
-                        <el-tag size="small" effect="plain">我的工作台</el-tag>
+                        <el-tag size="small" effect="plain">工作台</el-tag>
                     </div>
                     <div id="el-main-box">
 
@@ -147,19 +163,68 @@
             <el-container>
                 <el-footer>
                     <el-row :gutter="20">
-                        <el-col :span="6"><div class="grid-content bg-purple">sdsdf</div></el-col>
-                        <el-col :span="6"><div class="grid-content bg-purple">sdfsdf</div></el-col>
-                        <el-col :span="6"><div class="grid-content bg-purple">sdfds</div></el-col>
-                        <el-col :span="6"><div class="grid-content bg-purple">sdfdsf</div></el-col>
+                        <el-col :span="12">
+                            <ul class="home-order-status">
+                                <li>
+                                    <a href="">
+                                        <el-badge :value="1" class="item" type="primary">
+                                            <el-button size="small">今日待入住</el-button>
+                                        </el-badge>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <el-badge :value="1" class="item">
+                                            <el-button size="small">今日待离店</el-button>
+                                        </el-badge>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <el-badge :value="5" class="item" type="warning">
+                                            <el-button size="small">当前已入住</el-button>
+                                        </el-badge>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <el-button size="small">今日房态</el-button>
+                                    </a>
+                                </li>
+                            </ul>
+                        </el-col>
+                        <el-col :span="4">
+                            <el-row type="flex" justify="center">
+                                <el-radio-group style="margin-top: 15px;" size="small" value="远期房态">
+                                    <el-radio-button label="远期房态" ></el-radio-button>
+                                    <el-radio-button label="即期房态"></el-radio-button>
+                                </el-radio-group>
+                            </el-row>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-row type="flex" justify="end">
+                                <el-col :span="6">
+                                    <el-link style="margin-top: 20px;" :underline="false"><i class="el-icon-date"></i> 日历</el-link>
+                                </el-col>
+                                <el-col :span="6">
+                                    <el-link style="margin-top: 20px;" :underline="false"><i class="el-icon-edit-outline"></i> 备忘录</el-link>
+                                </el-col>
+                            </el-row>
+                        </el-col>
                     </el-row>
                 </el-footer>
             </el-container>
         </el-container>
+
+        <el-drawer title="消息中心" :visible.sync="msgDrawer" direction="rtl" size="350px">
+            <span>我来啦!</span>
+        </el-drawer>
     </div>
 
 <!-- 引入组件库 -->
-<script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="vendor/jq/jquery.min.js"></script>
+<script src="vendor/vue/vue.min.js"></script>
+<script src="vendor/eui/eui.js"></script>
 <script type="text/javascript" data-main="core/main" src="vendor/requirejs/require.js"></script>
 </body>
 </html>

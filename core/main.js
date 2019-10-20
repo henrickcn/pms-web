@@ -1,9 +1,11 @@
 requirejs.config({
     baseUrl : "./",
     paths: {
-        app : "../app"
+        core   : "core/base",
+        config : "config/webconfig",
+        helper: "core/helper/helper"
     }
 });
-requirejs(['controller/index/index'], function (index) {
+requirejs(['core'], function (core) {
     
 });
