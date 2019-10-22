@@ -6,6 +6,7 @@ requirejs.config({
         helper: "core/helper/helper"
     }
 });
+
 requirejs(['core'], function (core) {
     
 });

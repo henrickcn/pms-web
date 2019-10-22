@@ -109,7 +109,7 @@
 
             </el-header>
             <el-container>
-                <el-aside class="left-menu" width="auto">
+                <el-aside v-if="boxStatus.left" class="left-menu" width="auto">
                     <el-menu :unique-opened="true" :style="'height: '+leftMenuTop+'px'" default-active="1-4-1" class="el-menu-vertical-demo" :collapse="leftMenuCollapse">
                         <el-submenu index="1">
                             <template slot="title">
@@ -161,7 +161,7 @@
                 </el-main>
             </el-container>
             <el-container>
-                <el-footer>
+                <el-footer v-if="boxStatus.footer">
                     <el-row :gutter="20">
                         <el-col :span="12">
                             <ul class="home-order-status">

@@ -13,7 +13,7 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                 return false;
             }
             //基础页面初始化
-            this.basePageInit();
+            this.basePageInit(routerRet.data);
             return false;
         },
         routerParse: function () {  //路由解析
@@ -26,15 +26,23 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             if(!url[0] || !moduleName){
                 return helper.error(1, '页面加载错误或模块不存在');
             }
+            var modulesBaseUrl = moduleName + '/' + url[1];
             return  helper.error(0,'成功',{
-                moduleJs : moduleName + '/' + url[1] + '/controller/' + url[2]
+                moduleJs   : modulesBaseUrl + '/controller/' + url[2],
+                moduleView : modulesBaseUrl + '/view/' + url[2] + '.html',
+                moduleBaseUrl : modulesBaseUrl
             });
         },
-        basePageInit: function () { //基础页面初始化
+        basePageInit: function (routerData) { //基础页面初始化
             helper.mainPage = new Vue({
                 el : '#app',
                 data : function () {
                     return {
+                        boxStatus:{
+                            left   : true, //左侧菜单
+                            footer : true  //底部菜单
+                        },
+                        mainContentHeight: 121,
                         msgDrawer:false, //默认消息框
                         leftMenuCollapse : false, //左侧菜单是否折叠
                         leftMenuTop: document.documentElement.clientHeight - 121,
@@ -60,19 +68,52 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                     switchLeftMenu: function () {
                         this.leftMenuCollapse = this.leftMenuCollapse ? false:true;
                     }
+                },
+                computed: {
+                    footer: function(){
+                        return this.boxStatus.footer;
+                    },
+                    leftMenuTop: function(){
+                        return that.reloadAreaSize(this.mainContentHeight);
+                    }
+                },
+                watch: {
+                    footer : function (val) {
+                        that.reloadAreaSize(val?121:61);
+                    }
                 }
             });
 
+            var that = this;
             //窗口更大小监听事件
             window.onresize = function () {
-                if(helper.mainPage.leftMenuTop != document.documentElement.clientHeight - 121){
-                    helper.mainPage.leftMenuTop = document.documentElement.clientHeight - 121;
-                }
+                that.reloadAreaSize(helper.mainPage.mainContentHeight);
             };
+            //路由监听事件
+            window.onhashchange = function(){
+                that.loadController(routerData);
+            }
+            //初始化基础数据
+            this.loadBaseData(routerData);
+        },
+        reloadAreaSize: function(height){
+            helper.mainPage.mainContentHeight = height;
+            if(helper.mainPage.leftMenuTop != document.documentElement.clientHeight - helper.mainPage.mainContentHeight){
+                helper.mainPage.leftMenuTop = document.documentElement.clientHeight - helper.mainPage.mainContentHeight;
+            }
+        },
+        loadBaseData: function(routerData){ //加载基础数据
+            var that = this;
+            that.loadController(routerData);
+            //初始化基础数据
             helper.request('site/index','get',{},function (data) {
-                
+                //that.loadController(routerData);
             });
+        },
+        loadController: function (routerData) { //加载控制器
+
         }
     }
     base.init();
+    return true;
 });

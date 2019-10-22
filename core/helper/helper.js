@@ -50,6 +50,19 @@ define(['config'], function (config) {
                 background: bgColor || 'rgba(0, 0, 0, 0.8)',
                 customClass: className || 'page-loading'
             });
+        },
+        log: function () {
+            if(config.env === 'product'){
+                return true;
+            }
+            if(arguments.length){
+                for(key in arguments){
+                    console.log(arguments[key]);
+                }
+            }else{
+                console.log('结果为空');
+            }
+
         }
     }
     return helper;

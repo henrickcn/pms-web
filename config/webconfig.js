@@ -6,6 +6,8 @@
  */
 define(function () {
     return {
+        v: '1.0', //当前版本
+        env: 'develop', //当前环境
         apiDoMain : 'https://api.jd.com',
         homeUrl: 'm/base/index',
         modulesConfig: {
