@@ -8,7 +8,7 @@ define(function () {
     return {
         v: '1.0', //当前版本
         env: 'develop', //当前环境
-        apiDoMain : 'https://api.jd.com',
+        apiDoMain : 'http://api.pms.com',
         homeUrl: 'm/base/index',
         modulesConfig: {
             m : 'modules' //模块

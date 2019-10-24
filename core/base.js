@@ -106,8 +106,11 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             var that = this;
             that.loadController(routerData);
             //初始化基础数据
-            helper.request('site/index','get',{},function (data) {
+            helper.request('site/index','post',{},function (data) {
+                console.log(data,'===');
                 //that.loadController(routerData);
+            },function (data) {
+                console.log(data,'===');
             });
         },
         loadController: function (routerData) { //加载控制器
