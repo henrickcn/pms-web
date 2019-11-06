@@ -8,8 +8,7 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
     var base = {
         init : function () { //初始化方法
             var routerRet = this.routerParse();
-            if(routerRet.code){
-                helper.vue.$message.error(routerRet.msg);
+            if(routerRet === false){
                 return false;
             }
             //基础页面初始化
@@ -24,7 +23,8 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             url = url.substr(1).split("/");
             var moduleName = config.modulesConfig[url[0]]; //模块名字
             if(!url[0] || !moduleName){
-                return helper.error(1, '页面加载错误或模块不存在');
+                helper.vue.$message.error('页面加载错误或模块不存在');
+                return false;
             }
             var modulesBaseUrl = moduleName + '/' + url[1];
             return  helper.error(0,'成功',{
@@ -39,6 +39,8 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                 data : function () {
                     return {
                         boxStatus:{
+                            main   : true,
+                            header : true,
                             left   : true, //左侧菜单
                             footer : true  //底部菜单
                         },
@@ -91,7 +93,11 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             };
             //路由监听事件
             window.onhashchange = function(){
-                that.loadController(routerData);
+                var routerRet = that.routerParse();
+                if(routerRet === false){
+                    return false;
+                }
+                that.loadController(routerRet.data);
             }
             //初始化基础数据
             this.loadBaseData(routerData);
@@ -102,21 +108,43 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                 helper.mainPage.leftMenuTop = document.documentElement.clientHeight - helper.mainPage.mainContentHeight;
             }
         },
-        loadBaseData: function(routerData){ //加载基础数据
+        loadBaseData: function(routerData, isShowloading){ //加载基础数据
             var that = this;
             that.loadController(routerData);
             //初始化基础数据
             helper.request('pms/index/index','post',{},function (data) {
-                console.log(data,'===');
-                //that.loadController(routerData);
+
             },function (data) {
                 console.log(data,'===');
-            });
+            }, isShowloading);
         },
         loadController: function (routerData) { //加载控制器
+            var loading = helper.loading();
+            var that = this;
+            if(routerData.moduleJs == 'modules/user/controller/login' || routerData.moduleType == 'other'){
+                helper.mainPage.boxStatus.main = false;
+                $("#otherApp").html(""); //清空内容
 
+                $.get(routerData.moduleView,{},function (html) {
+                    $("#otherApp").html(html);
+                    loading.close();
+                    that.queryController(routerData.moduleJs);
+                });
+                return false;
+            }
+
+            $.get(routerData.moduleView,{},function (html) {
+                $("#otherApp").html(html);
+                that.queryController(routerData.moduleJs);
+                loading.close();
+            });
+        },
+        queryController: function (controller) {
+            if(!controller){
+                return false;
+            }
+            requirejs([controller+'.js'],function (controller) {});
         }
     }
-    base.init();
-    return true;
+    return base;
 });

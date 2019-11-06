@@ -30,7 +30,7 @@
     </style>
 </head>
 <body>
-    <div id="app" v-cloak>
+    <div id="app" v-cloak v-if="boxStatus.main">
         <el-container>
             <el-header>
                 <el-row class="el-top-nav">
@@ -219,6 +219,10 @@
         <el-drawer title="消息中心" :visible.sync="msgDrawer" direction="rtl" size="350px">
             <span>我来啦!</span>
         </el-drawer>
+    </div>
+
+    <div id="otherApp">
+
     </div>
 
 <!-- 引入组件库 -->

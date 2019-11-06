@@ -16,8 +16,10 @@ define(['config'], function (config) {
                 data : data   || {}
             }
         },
-        request : function (url, type, data, success, complete) { //ajax请求方法
-            var loading = this.loading();
+        request : function (url, type, data, success, complete, isShowHide) { //ajax请求方法
+            isShowHide = isShowHide===undefined ? true:isShowHide;
+            if(isShowHide)
+                var loading = this.loading();
             $.ajax({
                 url      : config.apiDoMain + '/' + url,
                 type     : type||'get',
@@ -28,8 +30,9 @@ define(['config'], function (config) {
                     typeof success === "function" ? success(data):'';
                 },
                 complete : function (req, data) {
-                    loading.close();
-                    if(req.status == 401 || data.code == 401){
+                    if(isShowHide)
+                        loading.close();
+                    if(req.status == 401 || req.responseJSON.errcode == 100){
                         window.location.href = "#m/user/login";
                         return false;
                     }

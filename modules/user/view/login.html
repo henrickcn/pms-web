@@ -1,0 +1,27 @@
+<div v-cloak>
+    <el-row>
+        <el-col span="8" offset="8">
+            <div style="text-align: center;padding: 20px;font-size: 20px;">登录系统</div>
+
+            <el-form :model="login" :disabled="isDisabled" :rules="rules" ref="login" status-icon="true" label-width="100px">
+                <el-form-item label="用户名" prop="username">
+                    <el-input v-model="login.username" placeholder="手机号、OA账号"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                    <el-input type="password" v-model="login.password" placeholder="登录密码"></el-input>
+                </el-form-item>
+                <el-form-item prop="remember" label="记住我" prop="delivery">
+                    <el-switch v-model="login.remember"></el-switch>
+                </el-form-item>
+                <el-form-item>
+                    <el-button  round type="primary" @click="submitForm('login')" :loading="loading">登录系统</el-button>
+                    <el-button round @click="resetForm('login')">注册账号</el-button>
+                </el-form-item>
+            </el-form>
+
+
+
+
+        </el-col>
+    </el-row>
+</div>

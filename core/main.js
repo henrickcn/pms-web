@@ -8,5 +8,5 @@ requirejs.config({
 });
 
 requirejs(['core'], function (core) {
-    
+    core.init();
 });
