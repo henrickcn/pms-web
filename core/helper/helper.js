@@ -21,10 +21,11 @@ define(['config'], function (config) {
             $.ajax({
                 url      : config.apiDoMain + '/' + url,
                 type     : type||'get',
-                data     : data,
+                data     : data||{},
                 dataType : 'json',
+                contentType:"application/x-www-form-urlencoded;charset=utf8",
                 success  : function (data) {
-                    typeof success === "object" ? success(data):'';
+                    typeof success === "function" ? success(data):'';
                 },
                 complete : function (req, data) {
                     loading.close();
@@ -32,7 +33,7 @@ define(['config'], function (config) {
                         window.location.href = "#m/user/login";
                         return false;
                     }
-                    typeof complete === "object" ? complete(req, data):'';
+                    typeof complete === "function" ? complete(req, data):'';
                 },
                 error: function (status, data) {
                     if(data == 'error'){
