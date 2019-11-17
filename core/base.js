@@ -58,6 +58,9 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                         storeId:[], //门店ID
                         topMenu: [], //底部菜单
                         topMenuActive: 'index',//默认选中菜单
+                        userInfo:{
+                            avatar : ''
+                        }
                     }
                 },
                 methods: {
@@ -113,9 +116,9 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             that.loadController(routerData);
             //初始化基础数据
             helper.request('pms/index/index','post',{},function (data) {
-
+                //helper.mainPage.userInfo = data.data.userInfo;
             },function (data) {
-                console.log(data,'===');
+
             }, isShowloading);
         },
         loadController: function (routerData) { //加载控制器
@@ -134,7 +137,7 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             }
 
             $.get(routerData.moduleView,{},function (html) {
-                $("#otherApp").html(html);
+                $("#MainApp").html(html);
                 that.queryController(routerData.moduleJs);
                 loading.close();
             });
@@ -143,7 +146,9 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             if(!controller){
                 return false;
             }
-            requirejs([controller+'.js'],function (controller) {});
+            requirejs([controller+'.js'],function (controller) {
+                controller.init();
+            });
         }
     }
     return base;

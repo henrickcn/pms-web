@@ -12,6 +12,16 @@ define(function () {
         homeUrl: 'm/base/index',
         modulesConfig: {
             m : 'modules' //模块
+        },
+        page: {
+            current : 1,
+            total: 0,
+            sizes: [10,20,30,40,50,100],
+            size: 10,
+            layout: 'total, sizes, prev, pager, next, jumper'
+        },
+        getPage: function () { //用于后续记住那一页
+            return this.page;
         }
     }
 });

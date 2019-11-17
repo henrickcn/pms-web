@@ -18,21 +18,24 @@ define(['config'], function (config) {
         },
         request : function (url, type, data, success, complete, isShowHide) { //ajax请求方法
             isShowHide = isShowHide===undefined ? true:isShowHide;
+            data = data||{};
+            data.session_key = this.cookie.get("sessionId");
             if(isShowHide)
                 var loading = this.loading();
             $.ajax({
                 url      : config.apiDoMain + '/' + url,
                 type     : type||'get',
-                data     : data||{},
+                data     : data,
                 dataType : 'json',
-                contentType:"application/x-www-form-urlencoded;charset=utf8",
+                headers : {Authorization: data.session_key},
                 success  : function (data) {
                     typeof success === "function" ? success(data):'';
                 },
                 complete : function (req, data) {
                     if(isShowHide)
                         loading.close();
-                    if(req.status == 401 || req.responseJSON.errcode == 100){
+                    if(req.status == 401 || (req.responseJSON && req.responseJSON.errcode == 100)){
+                        helper.cookie.set("sessionId", "", 0);
                         window.location.href = "#m/user/login";
                         return false;
                     }
@@ -67,6 +70,37 @@ define(['config'], function (config) {
                 console.log('结果为空');
             }
 
+        },
+        cookie: {
+            set : function (name, value, day) {
+                var d = new Date();
+                d.setTime(d.getTime() + (day*24*60*60*1000));
+                var expires = "expires="+ d.toUTCString();
+                document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            },
+            get: function (name) {
+                var name = name + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for(var i = 0; i <ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+        },
+        postData: function (data, fn) {
+            if(data.errcode){
+                helper.vue.$message.error(data.errmsg);
+                return false;
+            }
+            helper.vue.$message.success(data.errmsg);
+            fn();
         }
     }
     return helper;
