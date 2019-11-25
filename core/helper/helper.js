@@ -36,7 +36,7 @@ define(['config'], function (config) {
                         loading.close();
                     if(req.status == 401 || (req.responseJSON && req.responseJSON.errcode == 100)){
                         helper.cookie.set("sessionId", "", 0);
-                        window.location.href = "#m/user/login";
+                        window.location.href = "#pms/user/login";
                         return false;
                     }
                     typeof complete === "function" ? complete(req, data):'';
