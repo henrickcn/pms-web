@@ -18,6 +18,9 @@ define(['helper', 'config'],function (helper, config) {
                         tableData: [],
                         dialogFormVisible: false,
                         form:{},
+                        tableIndex: 0,
+                        formInline:{},
+                        collapseValue:["1"],
                         rules:{
                             id: {required:true, message:'权限Id不能为空'},
                             name: {required:true, message:'权限名称不能为空'},
@@ -33,12 +36,12 @@ define(['helper', 'config'],function (helper, config) {
                 methods: {
                     addAuth: function (formName) {
                         this.form = {};
-                        console.log(page.formObj);
-                        if(page.formObj)
-                            page.formObj.clearValidate();
                         this.dialogFormVisible = true;
+                        if(this.$refs[formName])
+                            this.$refs[formName].clearValidate();
                     },
                     submitForm(formName) {
+                        this.$refs[formName].clearValidate();
                         var that = this;
                         page.formObj = this.$refs[formName].validate(function(valid){
                             if (valid) {
@@ -46,6 +49,7 @@ define(['helper', 'config'],function (helper, config) {
                                     helper.postData(data, function () {
                                         that.dialogFormVisible = false;
                                         page.loadData();
+                                        this.form = {};
                                     });
                                 });
                             } else {
@@ -67,7 +71,10 @@ define(['helper', 'config'],function (helper, config) {
                     },
                     handleEdit: function (key, item) {
                         this.dialogFormVisible = true;
-                        this.form = item;
+                        this.form = JSON.parse(JSON.stringify(item));
+                    },
+                    clearForm: function (formName) {
+                        this.$refs[formName].clearValidate();
                     }
                 },
             });
