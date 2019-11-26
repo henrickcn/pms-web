@@ -9,9 +9,9 @@ define(function () {
         v: '1.0', //当前版本
         env: 'develop', //当前环境
         apiDoMain : 'http://api.pms.com',
-        homeUrl: 'm/base/index',
+        homeUrl: 'pms/base/index',
         modulesConfig: {
-            m : 'modules' //模块
+            pms : 'modules' //模块
         },
         page: {
             current : 1,
