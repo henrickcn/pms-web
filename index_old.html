@@ -18,11 +18,8 @@
         .el-footer{border-top: solid 1px #e6e6e6;background: white;}
         .el-top-nav .el-menu.el-menu--horizontal{border: 0;}
         .el-main{position: relative;}
-        #el-nav-list{position: absolute;top:0;left:0;right: 0;background: white;margin-top: 1px;bottom: 0px;overflow:auto;}
-        #el-nav-list .el-tabs--border-card{border:0px;box-shadow:0 1px 1px 0 rgba(0,0,0,.12), 0 0 1px 0 rgba(0,0,0,.04);}
-        #el-nav-list .main-tab-box{position: absolute;top:0;left:0;right:0;bottom:0}
-        #el-nav-list .main-tab-box .el-tabs__content{position: absolute;top:35px;left:0;right:0;bottom:0;overflow: auto;}
-        #el-main-box{position: absolute;top:37px;left:0;right: 0; }
+        #el-nav-list{position: absolute;top:0;left:0;right: 0;background: white;border-bottom: solid 1px #e6e6e6;margin-top: 1px;padding: 5px;}
+        #el-main-box{position: absolute;top:37px;left:0;right: 0;bottom: 0px;overflow:auto; }
         .icon-menu{display: flex;margin-right: 50px;margin-top: 20px;}
         .icon-menu div.icon-menu-list{width: 50px;text-align: center;}
         .icon-menu div.icon-menu-list a i{font-size: 20px;color: #409EFF;}
@@ -160,19 +157,68 @@
                 </el-aside>
                 <el-main :style="'height: '+leftMenuTop+'px;'">
                     <div id="el-nav-list">
-                        <el-tabs class="main-tab-box" v-model="tabWindowActive" type="border-card" @tab-click="switchPage" @tab-remove="closePage">
-                            <el-tab-pane
-                                    v-for="(item, index) in tabWindow"
-                                    :key="item.url"
-                                    :label="item.name"
-                                    :name="item.url"
-                                    :closable="index!=0"
-                            >
-                                <div class="pageContent" :id="item.url|formatUrl"></div>
-                            </el-tab-pane>
-                        </el-tabs>
+                        <el-tag @click="switchPage(item)" @close="closePage(item)" style="margin-right: 15px;cursor: pointer" size="small" :closable="key!=0" :type="item.url == tabWindowActive ? 'success':'info'" v-for="(item, key) in tabWindow">{{item.name}}</el-tag>
+                    </div>
+                    <div id="el-main-box">
+                        <div id="MainApp">
+
+                        </div>
                     </div>
                 </el-main>
+            </el-container>
+            <el-container>
+                <el-footer v-if="boxStatus.footer">
+                    <el-row :gutter="20">
+                        <el-col :span="12">
+                            <ul class="home-order-status">
+                                <li>
+                                    <a href="">
+                                        <el-badge :value="1" class="item" type="primary">
+                                            <el-button size="small">今日待入住</el-button>
+                                        </el-badge>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <el-badge :value="1" class="item">
+                                            <el-button size="small">今日待离店</el-button>
+                                        </el-badge>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <el-badge :value="5" class="item" type="warning">
+                                            <el-button size="small">当前已入住</el-button>
+                                        </el-badge>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <el-button size="small">今日房态</el-button>
+                                    </a>
+                                </li>
+                            </ul>
+                        </el-col>
+                        <el-col :span="4">
+                            <el-row type="flex" justify="center">
+                                <el-radio-group style="margin-top: 15px;" size="small" value="远期房态">
+                                    <el-radio-button label="远期房态" ></el-radio-button>
+                                    <el-radio-button label="即期房态"></el-radio-button>
+                                </el-radio-group>
+                            </el-row>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-row type="flex" justify="end">
+                                <el-col :span="6">
+                                    <el-link style="margin-top: 20px;" :underline="false"><i class="el-icon-date"></i> 日历</el-link>
+                                </el-col>
+                                <el-col :span="6">
+                                    <el-link style="margin-top: 20px;" :underline="false"><i class="el-icon-edit-outline"></i> 备忘录</el-link>
+                                </el-col>
+                            </el-row>
+                        </el-col>
+                    </el-row>
+                </el-footer>
             </el-container>
         </el-container>
 

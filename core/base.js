@@ -20,6 +20,7 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             if(!url){
                 url = "#"+config.homeUrl;
             }
+            var pageUrl = url.substr(1);
             url = url.substr(1).split("/");
             var moduleName = config.modulesConfig[url[0]]; //模块名字
             if(!url[0] || !moduleName){
@@ -30,10 +31,12 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             return  helper.error(0,'成功',{
                 moduleJs   : modulesBaseUrl + '/controller/' + url[2],
                 moduleView : modulesBaseUrl + '/view/' + url[2] + '.html',
-                moduleBaseUrl : modulesBaseUrl
+                moduleBaseUrl : modulesBaseUrl,
+                pageUrl : pageUrl
             });
         },
         basePageInit: function (routerData) { //基础页面初始化
+            var sourceHeight = 61;
             helper.mainPage = new Vue({
                 el : '#app',
                 data : function () {
@@ -42,12 +45,12 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                             main   : true,
                             header : true,
                             left   : true, //左侧菜单
-                            footer : true  //底部菜单
+                            footer : false  //底部菜单
                         },
-                        mainContentHeight: 121,
+                        mainContentHeight: sourceHeight,
                         msgDrawer:false, //默认消息框
                         leftMenuCollapse : false, //左侧菜单是否折叠
-                        leftMenuTop: document.documentElement.clientHeight - 121,
+                        leftMenuTop: document.documentElement.clientHeight - sourceHeight,
                         shopStore: [
                             /*{
                                 value: '深圳',
@@ -60,7 +63,22 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                         topMenuActive: 'index',//默认选中菜单
                         userInfo:{
                             avatar : ''
-                        }
+                        },
+                        tabWindow:[ //标签窗口
+                            {
+                                "name" : "工作台",
+                                "url"  : "pms/base/home"
+                            },
+                            {
+                                "name" : "房态",
+                                "url"  : "pms/base/workspace"
+                            },
+                            {
+                                "name" : "菜单权限配置",
+                                "url"  : "pms/base/menu"
+                            }
+                        ],
+                        tabWindowActive: 'pms/base/workspace'
                     }
                 },
                 methods: {
@@ -72,6 +90,21 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                     },
                     switchLeftMenu: function () {
                         this.leftMenuCollapse = this.leftMenuCollapse ? false:true;
+                    },
+                    switchPage: function (page) {
+                        window.location.href = "#"+this.tabWindowActive;
+                    },
+                    closePage: function (page) {
+                        var prevPage = this.tabWindow[0];
+                        for(key in this.tabWindow){
+                            if(page == this.tabWindow[key]['url'] && key!=0){
+                                this.tabWindow.splice(key, 1);
+                                this.tabWindowActive = prevPage.url;
+                                this.switchPage(prevPage);
+                                return false;
+                            }
+                            prevPage = this.tabWindow[key];
+                        }
                     }
                 },
                 computed: {
@@ -83,8 +116,11 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                     }
                 },
                 watch: {
-                    footer : function (val) {
-                        that.reloadAreaSize(val?121:61);
+
+                },
+                filters: {
+                    formatUrl: function (data) {
+                        return data.replace(/\//g, '_');
                     }
                 }
             });
@@ -122,32 +158,35 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
             }, isShowloading);
         },
         loadController: function (routerData) { //加载控制器
-            var loading = helper.loading();
+            helper.mainPage.tabWindowActive = routerData.pageUrl;
+            var vueId = routerData.pageUrl.replace(/\//g, '_');
             var that = this;
             if(routerData.moduleJs == 'modules/user/controller/login' || routerData.moduleType == 'other'){
                 helper.mainPage.boxStatus.main = false;
                 $("#otherApp").html(""); //清空内容
-
+                var loading = helper.loading();
                 $.get(routerData.moduleView,{},function (html) {
                     $("#otherApp").html(html);
                     loading.close();
-                    that.queryController(routerData.moduleJs);
+                    that.queryController(routerData.moduleJs, vueId);
                 });
                 return false;
             }
-
-            $.get(routerData.moduleView,{},function (html) {
-                $("#MainApp").html(html);
-                that.queryController(routerData.moduleJs);
-                loading.close();
-            });
+            if(!$("#"+vueId).html()){
+                var loading = helper.loading();
+                $.get(routerData.moduleView,{},function (html) {
+                    $("#"+vueId).html('<div id="'+vueId+'__Box" v-cloak>'+html+'</div>');
+                    that.queryController(routerData.moduleJs, vueId+'__Box');
+                    loading.close();
+                });
+            }
         },
-        queryController: function (controller) {
+        queryController: function (controller, id) {
             if(!controller){
                 return false;
             }
             requirejs([controller+'.js'],function (controller) {
-                controller.init();
+                controller.init(id);
             });
         }
     }

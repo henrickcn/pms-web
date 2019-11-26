@@ -19,7 +19,7 @@ define(['config'], function (config) {
         request : function (url, type, data, success, complete, isShowHide) { //ajax请求方法
             isShowHide = isShowHide===undefined ? true:isShowHide;
             data = data||{};
-            data.session_key = this.cookie.get("sessionId");
+            data.__session_key = this.cookie.get("sessionId");
             if(isShowHide)
                 var loading = this.loading();
             $.ajax({
@@ -27,7 +27,7 @@ define(['config'], function (config) {
                 type     : type||'get',
                 data     : data,
                 dataType : 'json',
-                headers : {Authorization: data.session_key},
+                //headers : {Authorization: data.session_key},
                 success  : function (data) {
                     typeof success === "function" ? success(data):'';
                 },

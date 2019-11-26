@@ -1,0 +1,29 @@
+<div>
+
+    <div class="table-search">
+        <el-collapse v-model="collapseValue" class="hui-search">
+            <el-collapse-item name="1">
+                <template slot="title">
+                    <div class="hui-search-title">
+                        <i class="header-icon el-icon-search"></i> 筛选条件
+                    </div>
+                </template>
+                <el-form :inline="true" :model="formInline" class="demo-form-inline" size="small">
+                    <el-form-item label="权限名称">
+                        <el-input v-model="formInline.user" placeholder="请输入权限名称"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" >查询</el-button>
+                        <el-button>重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-collapse-item>
+        </el-collapse>
+        <el-row style="margin-top: 15px;">
+            <el-col :span="24">
+                <el-button type="primary" @click="addAuth('ruleForm')" icon="el-icon-plus" size="mini">添加</el-button>
+            </el-col>
+        </el-row>
+    </div>
+
+</div>
