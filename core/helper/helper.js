@@ -21,7 +21,7 @@ define(['config'], function (config) {
             data = data||{};
             data.__session_key = this.cookie.get("sessionId");
             if(isShowHide)
-                var loading = this.loading();
+                var loading = this.loading("正在处理中~");
             $.ajax({
                 url      : config.apiDoMain + '/' + url,
                 type     : type||'get',
@@ -95,11 +95,42 @@ define(['config'], function (config) {
             }
         },
         postData: function (data, fn) {
+            var fn = fn||new Function();
             if(data.errcode){
                 helper.vue.$message.error(data.errmsg);
                 return false;
             }
             helper.vue.$message.success(data.errmsg);
+            fn();
+        },
+        confirm: function (content,title, ok, cancel ,type ) {
+            var content = content||"你真的要删除选中的数据吗？";
+            var type = type||"warning";
+            var title = title||"温馨提醒";
+            var ok = ok||new Function();
+            var cancel = cancel||new Function();
+            helper.vue.$confirm(content, title, {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: type
+            }).then(function () {
+                ok();
+            }).catch(function () {
+                cancel();
+            });
+        },
+        alert: function (content, type, fn) {
+            var content = content||"内容";
+            var type    = type || "success";
+            var fn      = fn || new Function();
+            switch (type) {
+                case 'success':
+                    helper.vue.$message.success(content);
+                    break;
+                case 'error':
+                    helper.vue.$message.error(content);
+                    break;
+            }
             fn();
         }
     }

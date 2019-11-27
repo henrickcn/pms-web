@@ -8,7 +8,7 @@
             </template>
             <el-form :inline="true" :model="formSearch" size="small" ref="formSearch">
                 <el-form-item label="关键字" prop="keyword">
-                    <el-input autosize placeholder="分类名称、分类标识" v-model="formSearch.keyword" clearable></el-input>
+                    <el-input autosize placeholder="菜单名称" v-model="formSearch.keyword" clearable></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handlerCurrentChange(1)">搜索</el-button>
@@ -25,22 +25,43 @@
             <el-button @click="add('menuForm')" icon="el-icon-plus" size="mini">添加</el-button>
         </el-col>
     </el-row>
-    <!--表格-->
-    <el-table max-height="500" v-loading="loading" size="small" @sort-change="select" :data="tableData" style="width: 100%" row-key="id" border @selection-change="handleSelectionChange">
-        <el-table-column prop="id" align="center" type="selection" width="55"></el-table-column>
-        <el-table-column sortable fixed prop="name" label="分类名称"></el-table-column>
-        <el-table-column fixed prop="name_en" label="分类标识" width="180"></el-table-column>
-        <el-table-column sortable align="center" prop="create_time" label="创建时间" width="180"></el-table-column>
-        <el-table-column fixed="right" align="center" resizable="true" label="操作" width="80">
-            <template slot-scope="scope">
-                <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            </template>
-        </el-table-column>
-    </el-table>
-    <!--分页符-->
-    <div class="table-pagination">
-        <el-pagination @current-change = "handlerCurrentChange" @size-change = "handlerSizeChange" :current-page="page.current" :page-sizes="page.sizes" :page-size="page.size" :layout="page.layout" :total="page.total"></el-pagination>
-    </div>
+    <el-row>
+        <el-col :span="6">
+            <el-card class="box-card menu-list">
+                <div slot="header" class="clearfix">
+                    <span>菜单分类</span>
+                    <el-button @click="goUrl('pms/base/menu')" style="float: right; padding: 3px 0" type="text">管理分类</el-button>
+                    <el-button @click="reloadTypeData" style="float: right; padding: 3px 0" type="text" :loading="typeLoading">
+                        刷新
+                    </el-button>
+                </div>
+                <div @click="swicthType(item)" v-for="(item, key) in typeData" :class="'text menu-list-item '+(formSearch.typeId==item.id?'active':'')">
+                    {{item.name}}
+                </div>
+            </el-card>
+        </el-col>
+        <el-col :span="18">
+            <el-tree
+                    :data="treeData"
+                    show-checkbox
+                    node-key="id"
+                    default-expand-all
+                    :expand-on-click-node="false">
+                      <span class="custom-tree-node" slot-scope="{ node, data }">
+                        <span>{{ node.label }}</span>
+                        <span>
+                          <el-button type="text" size="mini" @click="add()">
+                            添加子菜单
+                          </el-button>
+                          <el-button type="text" size="mini" @click="del()">
+                            删除
+                          </el-button>
+                        </span>
+                      </span>
+            </el-tree>
+        </el-col>
+    </el-row>
+
 </div>
 
 <el-dialog @close="clearForm('ruleForm')" title="编辑" :visible.sync="dialogFormVisible" :close-on-click-modal="false" :close-on-press-escape="false">

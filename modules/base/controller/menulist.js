@@ -19,18 +19,20 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                         searchOptions:[], //菜单分类
                         formSearch:{  //搜索区域表单
                             keyword : '',
-                            orderBy : {prop:'create_time', orderBy:'"descending"'}
+                            typeId: ''
                         },
-                        tableData:[], //表格数据
-                        formAction: 'pms/menu/editortype',//表单数据提交地址
-                        listUrl: 'pms/menu/listtype',
-                        delUrl: 'pms/menu/deltype',
+                        treeData:[], //表格数据
+                        typeData:[],
+                        formAction: 'pms/menu/editor',//表单数据提交地址
+                        listUrl: 'pms/menu/list',
+                        delUrl: 'pms/menu/del',
+                        typeListUrl: 'pms/menu/gettypelist',
                         form: validate.form, //表单数据
                         rules: validate.rules, //验证规则
                         dialogFormVisible: false,
-                        multipleSelection:[], //多选Ids
                         refreshStatus: false, //按钮刷新数据
-                        page : config.getPage()
+                        page : {},
+                        typeLoading: false
                     };
                 },
                 methods: {
@@ -61,36 +63,14 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                         this.$refs[formName].resetFields();
                         this.$refs[formName].clearValidate();
                     },
-                    select: function(data){
-                        this.formSearch.orderBy = {
-                            prop    : data.prop,
-                            orderBy : data.order
-                        };
-                        page.loadData();
-                    },
-                    handlerSizeChange: function (val) { //分页事件
-                        this.page.size = val;
-                        page.loadData();
-                    },
-                    handlerCurrentChange: function (val) { //分页事件
-                        this.page.current = val;
-                        page.loadData();
-                    },
-                    handleEdit: function (key, item) { //分页事件
-                        this.dialogFormVisible = true;
-                        this.form = JSON.parse(JSON.stringify(item));
-                    },
                     clearForm: function (formName) { //清除验证
                         this.$refs[formName].clearValidate();
-                    },
-                    handleSelectionChange: function (val) { //数据选择
-                        this.multipleSelection = val;
                     },
                     refresh: function () { //刷新数据
                         this.refreshStatus = true;
                         page.loadData();
                     },
-                    del: function () {
+                    remove: function (node, data) {
                         var that = this;
                         if(!this.multipleSelection.length){
                             helper.alert("请至少选择一条数据", "error");
@@ -106,11 +86,26 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                                 page.loadData();
                             });
                         });
+                    },
+                    append: function () {
+                        
+                    },
+                    renderContent: function () {
+                        
+                    },
+                    reloadTypeData: function () {
+                        page.loadTypeData();
+                    },
+                    goUrl: function (url) {
+                        window.location.href = "#"+url;
+                    },
+                    swicthType: function (data) {
+                        that.vue.formSearch.typeId = data.id;
                     }
                 },
             });
 
-            this.loadData();
+            this.loadTypeData();
         },
         
         loadData: function () {
@@ -124,6 +119,19 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                 that.vue.loading = false;
             }, false);
 
+        },
+        loadTypeData: function () {
+            that = this;
+            that.vue.typeLoading = true;
+            helper.request(that.vue.typeListUrl,'post',{page: this.vue.page, where: that.vue.formSearch}, function (data) {
+                that.vue.typeData = data.data.list.data;
+                if(!that.vue.formSearch.typeId && that.vue.typeData.length){
+                    that.vue.formSearch.typeId = that.vue.typeData[0]['id'];
+                }
+                that.loadData();
+            },function () {
+                that.vue.typeLoading = false;
+            }, false);
         }
     };
     return page;

@@ -74,8 +74,12 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                                 "url"  : "pms/base/workspace"
                             },
                             {
-                                "name" : "菜单权限配置",
+                                "name" : "菜单分类管理",
                                 "url"  : "pms/base/menu"
+                            },
+                            {
+                                "name" : "菜单配置管理",
+                                "url"  : "pms/base/menulist"
                             }
                         ],
                         tabWindowActive: 'pms/base/workspace'
