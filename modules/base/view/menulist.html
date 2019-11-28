@@ -19,8 +19,13 @@
     </el-collapse>
     <!--工具栏-->
     <el-row style="margin: 15px 0;">
-        <el-col :span="24" style="text-align: right">
-            <el-button @click="del('menuForm')" icon="el-icon-remove" size="mini">删除</el-button>
+        <el-col :span="8">
+            <el-breadcrumb separator-class="el-icon-arrow-right">
+                <el-breadcrumb-item>菜单分类管理</el-breadcrumb-item>
+                <el-breadcrumb-item>{{menuTypeName}}</el-breadcrumb-item>
+            </el-breadcrumb>
+        </el-col>
+        <el-col :span="16" style="text-align: right">
             <el-button @click="refresh('menuForm')" :loading="refreshStatus" icon="el-icon-refresh" size="mini">刷新</el-button>
             <el-button @click="add('menuForm')" icon="el-icon-plus" size="mini">添加</el-button>
         </el-col>
@@ -43,17 +48,19 @@
         <el-col :span="18">
             <el-tree
                     :data="treeData"
-                    show-checkbox
                     node-key="id"
                     default-expand-all
                     :expand-on-click-node="false">
                       <span class="custom-tree-node" slot-scope="{ node, data }">
                         <span>{{ node.label }}</span>
                         <span>
-                          <el-button type="text" size="mini" @click="add()">
+                          <el-button type="text" size="mini" @click="addChildren(data, 'menuForm')">
                             添加子菜单
                           </el-button>
-                          <el-button type="text" size="mini" @click="del()">
+                          <el-button type="text" size="mini" @click="editor(data, 'menuForm')">
+                            修改
+                          </el-button>
+                          <el-button type="text" size="mini" @click="del(data)">
                             删除
                           </el-button>
                         </span>
@@ -66,11 +73,25 @@
 
 <el-dialog @close="clearForm('ruleForm')" title="编辑" :visible.sync="dialogFormVisible" :close-on-click-modal="false" :close-on-press-escape="false">
     <el-form :model="form" label-width="120px" :rules="rules" ref="ruleForm" status-icon>
-        <el-form-item label="分类名称" prop="name">
-            <el-input placeholder="请输入分类名称"  v-model="form.name" autocomplete="off" clearable></el-input>
+        <el-form-item label="菜单名称" prop="name">
+            <el-input placeholder="请输入菜单名称"  v-model="form.name" autocomplete="off" clearable></el-input>
         </el-form-item>
-        <el-form-item label="分类标识" prop="name_en">
-            <el-input placeholder="请输入分类标识" v-model="form.name_en" clearable></el-input>
+        <el-form-item label="菜单分类" prop="type_id">
+            <el-select v-model="form.type_id" placeholder="请选择">
+                <el-option v-for="item in typeData" :key="item.id" :label="item.name" :value="item.id"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="对应权限" prop="auth_name">
+            <el-autocomplete v-model="form.auth_name" :fetch-suggestions="querySearchAsync" placeholder="请输入权限名称" @select="handleSelect"></el-autocomplete>
+        </el-form-item>
+        <el-form-item label="菜单链接" prop="url">
+            <el-input placeholder="请输入菜单链接"  v-model="form.url" autocomplete="off" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="菜单图标" prop="url">
+            <el-input placeholder="请输入菜单图标"  v-model="form.icon" autocomplete="off" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="排序ID" prop="weight">
+            <el-input-number min="0" v-model="form.weight"></el-input-number>
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="submitForm('ruleForm')">保 存</el-button>

@@ -4,12 +4,11 @@
  * @create-time 2019-10-17
  * @version v1.0
  */
-define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, config, validate) {
+define(['helper', 'config', '/modules/base/validate/menulist.js'],function (helper, config, validate) {
     var page = {
         vue: '',
         formObj: '',
         init: function (id) {
-            console.log(id);
             this.vue = new Vue({
                 el: '#'+id,
                 data: function () {
@@ -25,6 +24,7 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                         typeData:[],
                         formAction: 'pms/menu/editor',//表单数据提交地址
                         listUrl: 'pms/menu/list',
+                        authListUrl: 'pms/menu/authlist',
                         delUrl: 'pms/menu/del',
                         typeListUrl: 'pms/menu/gettypelist',
                         form: validate.form, //表单数据
@@ -32,12 +32,16 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                         dialogFormVisible: false,
                         refreshStatus: false, //按钮刷新数据
                         page : {},
-                        typeLoading: false
+                        typeLoading: false,
+                        menuTypeName: ''
                     };
                 },
                 methods: {
                     add: function (formName) {
-                        this.form = {};
+                        this.form = {
+                            type_id : this.formSearch.typeId,
+                            weight : 0
+                        };
                         this.dialogFormVisible = true;
                         if(this.$refs[formName])
                             this.$refs[formName].clearValidate();
@@ -70,29 +74,6 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                         this.refreshStatus = true;
                         page.loadData();
                     },
-                    remove: function (node, data) {
-                        var that = this;
-                        if(!this.multipleSelection.length){
-                            helper.alert("请至少选择一条数据", "error");
-                            return false;
-                        }
-                        helper.confirm("你真是要删除选择的数据么？", "温馨提醒", function () {
-                            helper.request(that.delUrl,'post',{id: that.multipleSelection}, function (data) {
-                                if(data.errcode){
-                                    helper.alert(data.errmsg);
-                                    return false;
-                                }
-                                helper.alert(data.errmsg);
-                                page.loadData();
-                            });
-                        });
-                    },
-                    append: function () {
-                        
-                    },
-                    renderContent: function () {
-                        
-                    },
                     reloadTypeData: function () {
                         page.loadTypeData();
                     },
@@ -101,6 +82,55 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                     },
                     swicthType: function (data) {
                         that.vue.formSearch.typeId = data.id;
+                        this.menuTypeName = data.name;
+                        page.loadData();
+                    },
+                    querySearchAsync: function (queryString, fn) {
+                        helper.request(that.vue.authListUrl,'post',{keyword: queryString}, function (data) {
+                            fn(data.data.list);
+                        },function () {}, false);
+                    },
+                    handleSelect: function (item) {
+                        this.form.auth_id = item.id;
+                        this.form.auth_name = item.value;
+                    },
+                    addChildren: function (data, formName) {
+                        this.form = {
+                            type_id : data.type_id,
+                            parent_id : data.id,
+                            level: parseInt(data.level)+1,
+                            join_string: (data.join_string||'-')+data.id+'-',
+                            weight : 0
+                        };
+                        this.dialogFormVisible = true;
+                        if(this.$refs[formName])
+                            this.$refs[formName].clearValidate();
+                    },
+                    editor: function (data, formName) { //修改菜单
+                        this.form = JSON.parse(JSON.stringify(data));
+                        this.dialogFormVisible = true;
+                    },
+                    del: function (data) {
+                        var that = this;
+                        $msg = "你真的要删除此记录么？";
+                        if(data.children){
+                            $msg = "删除菜单：【"+data.name+"】下面存在的子菜单将一并删除哦，确定要执行此操作么？";
+                        }
+                        if(data.id){
+                            helper.confirm($msg, '删除提醒', function () {
+                                helper.request(that.delUrl,'post',{id: data.id}, function (data) {
+                                    if(data.errcode){
+                                        helper.alert(data.errmsg);
+                                        return false;
+                                    }
+                                    helper.alert(data.errmsg);
+                                    page.loadData();
+                                });
+                            });
+                        }
+                    },
+                    handlerCurrentChange: function () {
+                        page.loadData();
                     }
                 },
             });
@@ -111,9 +141,8 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
         loadData: function () {
             var that = this;
             that.vue.loading = true;
-            helper.request(that.vue.listUrl,'post',{page: this.vue.page, where: that.vue.formSearch}, function (data) {
-                that.vue.page = data.data.page;
-                that.vue.tableData = data.data.data;
+            helper.request(that.vue.listUrl,'post',{where: that.vue.formSearch}, function (data) {
+                that.vue.treeData = data.data.list;
             },function () {
                 that.vue.refreshStatus = false;
                 that.vue.loading = false;
@@ -127,6 +156,7 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                 that.vue.typeData = data.data.list.data;
                 if(!that.vue.formSearch.typeId && that.vue.typeData.length){
                     that.vue.formSearch.typeId = that.vue.typeData[0]['id'];
+                    that.vue.menuTypeName = that.vue.typeData[0]['name'];
                 }
                 that.loadData();
             },function () {
