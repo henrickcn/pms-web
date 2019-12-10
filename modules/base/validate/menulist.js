@@ -9,7 +9,8 @@ define(function () {
         form : {
             name : '',
             type_id: '',
-            weight: 0
+            weight: 0,
+            is_hide: '是'
         },
         rules: {
             name : [

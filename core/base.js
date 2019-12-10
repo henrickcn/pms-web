@@ -70,8 +70,8 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                                 "url"  : "pms/base/home"
                             },
                             {
-                                "name" : "房态",
-                                "url"  : "pms/base/workspace"
+                                "name" : "权限管理",
+                                "url"  : "pms/base/auth"
                             },
                             {
                                 "name" : "菜单分类管理",
@@ -80,6 +80,10 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                             {
                                 "name" : "菜单配置管理",
                                 "url"  : "pms/base/menulist"
+                            },
+                            {
+                                "name" : "管理员用户-管理",
+                                "url"  : "pms/base/user"
                             }
                         ],
                         tabWindowActive: 'pms/base/workspace'

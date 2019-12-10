@@ -40,8 +40,11 @@
                         刷新
                     </el-button>
                 </div>
-                <div @click="swicthType(item)" v-for="(item, key) in typeData" :class="'text menu-list-item '+(formSearch.typeId==item.id?'active':'')">
-                    {{item.name}}
+                <div v-for="(item, key) in typeData" :class="'text menu-list-item '+(formSearch.typeId==item.id?'active':'')">
+                    <el-button @click="swicthType(item)"  type="text" :loading="item.typeLoading">
+                        {{item.name}}
+                    </el-button>
+
                 </div>
             </el-card>
         </el-col>
@@ -52,7 +55,7 @@
                     default-expand-all
                     :expand-on-click-node="false">
                       <span class="custom-tree-node" slot-scope="{ node, data }">
-                        <span>{{ node.label }}</span>
+                        <span :style="data.is_hide?'color:#999':''">{{ node.label }}</span>
                         <span>
                           <el-button type="text" size="mini" @click="addChildren(data, 'menuForm')">
                             添加子菜单
@@ -92,6 +95,12 @@
         </el-form-item>
         <el-form-item label="排序ID" prop="weight">
             <el-input-number min="0" v-model="form.weight"></el-input-number>
+        </el-form-item>
+        <el-form-item label="是否显示" prop="is_hide">
+            <el-select v-model="form.is_hide" placeholder="请选择">
+                <el-option label="是" value="0"></el-option>
+                <el-option label="否" value="1"></el-option>
+            </el-select>
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="submitForm('ruleForm')">保 存</el-button>

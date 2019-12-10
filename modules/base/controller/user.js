@@ -1,51 +1,68 @@
 /**
- * 首页基础模块
+ * 用户模块
  * @author henrick
- * @create-time 2019-10-17
+ * @create-time 2019-11-17
  * @version v1.0
  */
-define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, config, validate) {
+define(['helper', 'config'],function (helper, config) {
     var page = {
         vue: '',
         formObj: '',
         init: function (id) {
-            console.log(id);
             this.vue = new Vue({
                 el: '#'+id,
                 data: function () {
+                    var that = this;
+                    var checkPassWord = function (rule, value, callback) {
+                        if(!that.form.id && !value){
+                            callback(new Error('请输入密码'));
+                        }
+                        callback();
+                    }
                     return {
-                        loading: true, //表格loading
-                        collapseValue:['1'], //搜索折叠
-                        searchOptions:[], //菜单分类
+                        loading: true,
+                        tableData: [],
+                        dialogFormVisible: false,
+                        form:{},
+                        tableIndex: 0,
                         formSearch:{  //搜索区域表单
                             keyword : '',
                             orderBy : {prop:'create_time', orderBy:'descending'}
                         },
-                        tableData:[], //表格数据
-                        formAction: 'pms/menu/editortype',//表单数据提交地址
-                        listUrl: 'pms/menu/listtype',
-                        delUrl: 'pms/menu/deltype',
-                        form: validate.form, //表单数据
-                        rules: validate.rules, //验证规则
-                        dialogFormVisible: false,
-                        multipleSelection:[], //多选Ids
-                        refreshStatus: false, //按钮刷新数据
-                        page : config.getPage()
+                        collapseValue:["1"],
+                        rules:{
+                            real_name: {required:true, message:'真实姓名不能为空'},
+                            phone    : {required:true, message:'手机号不能为空'},
+                            oa_name  : {required:true, message:'OA账号不能为空'},
+                            email  : [
+                                {required:true, message:'邮箱不能为空'},
+                                {email: true, message: '邮箱格式错误'}
+                            ],
+                            pass_word: {validator:checkPassWord, message:'密码不能为空'}
+                        },
+                        page : config.getPage(),
+                        refreshStatus: false,
+                        delUrl: 'pms/user/del',
+                        multipleSelection:[]
                     };
                 },
                 methods: {
-                    add: function (formName) {
+                    addAuth: function (formName) {
+                        var that = this;
                         this.form = {};
                         this.dialogFormVisible = true;
-                        if(this.$refs[formName])
-                            this.$refs[formName].clearValidate();
+                        setTimeout(function () {
+                            if(that.$refs[formName])
+                                that.$refs[formName].clearValidate();
+                        },200);
+
                     },
-                    submitForm(formName) { //提交数据
+                    submitForm(formName) {
                         this.$refs[formName].clearValidate();
                         var that = this;
                         page.formObj = this.$refs[formName].validate(function(valid){
                             if (valid) {
-                                helper.request(that.formAction, 'post', that.form, function (data) {
+                                helper.request('pms/user/editor', 'post', that.form, function (data) {
                                     helper.postData(data, function () {
                                         that.dialogFormVisible = false;
                                         page.loadData();
@@ -57,8 +74,23 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                             }
                         });
                     },
-                    resetForm(formName) { //重置表单
+                    resetForm(formName) {
+                        this.$refs[formName].clearValidate();
                         this.$refs[formName].resetFields();
+                    },
+                    handlerSizeChange: function (val) {
+                        this.page.size = val;
+                        page.loadData();
+                    },
+                    handlerCurrentChange: function (val) {
+                        this.page.current = val;
+                        page.loadData();
+                    },
+                    handleEdit: function (key, item) {
+                        this.dialogFormVisible = true;
+                        this.form = JSON.parse(JSON.stringify(item));
+                    },
+                    clearForm: function (formName) {
                         this.$refs[formName].clearValidate();
                     },
                     select: function(data){
@@ -67,21 +99,6 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                             orderBy : data.order
                         };
                         page.loadData();
-                    },
-                    handlerSizeChange: function (val) { //分页事件
-                        this.page.size = val;
-                        page.loadData();
-                    },
-                    handlerCurrentChange: function (val) { //分页事件
-                        this.page.current = val;
-                        page.loadData();
-                    },
-                    handleEdit: function (key, item) { //分页事件
-                        this.dialogFormVisible = true;
-                        this.form = JSON.parse(JSON.stringify(item));
-                    },
-                    clearForm: function (formName) { //清除验证
-                        this.$refs[formName].clearValidate();
                     },
                     handleSelectionChange: function (val) { //数据选择
                         this.multipleSelection = val;
@@ -103,9 +120,15 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
                                     return false;
                                 }
                                 helper.alert(data.errmsg);
+                                var maxPage = Math.ceil((that.page.total-1)/that.page.size);
+                                that.page.current = that.page.current>maxPage? maxPage:that.page.current;
+                                console.log(that.page);
                                 page.loadData();
                             });
                         });
+                    },
+                    createTimeFormat: function (row, column, cellValue, index) {
+                        return row.create_time.substr(0,16)
                     }
                 },
             });
@@ -116,14 +139,13 @@ define(['helper', 'config', '/modules/base/validate/menu.js'],function (helper, 
         loadData: function () {
             var that = this;
             that.vue.loading = true;
-            helper.request(that.vue.listUrl,'post',{page: this.vue.page, where: that.vue.formSearch}, function (data) {
+            helper.request('pms/user/list','post',{page: this.vue.page, data: this.vue.formSearch}, function (data) {
                 that.vue.page = data.data.page;
                 that.vue.tableData = data.data.data;
             },function () {
-                that.vue.refreshStatus = false;
                 that.vue.loading = false;
+                that.vue.refreshStatus = false;
             }, false);
-
         }
     };
     return page;

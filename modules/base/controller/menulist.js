@@ -40,7 +40,8 @@ define(['helper', 'config', '/modules/base/validate/menulist.js'],function (help
                     add: function (formName) {
                         this.form = {
                             type_id : this.formSearch.typeId,
-                            weight : 0
+                            weight : 0,
+                            is_hide: '是'
                         };
                         this.dialogFormVisible = true;
                         if(this.$refs[formName])
@@ -83,7 +84,8 @@ define(['helper', 'config', '/modules/base/validate/menulist.js'],function (help
                     swicthType: function (data) {
                         that.vue.formSearch.typeId = data.id;
                         this.menuTypeName = data.name;
-                        page.loadData();
+                        data.typeLoading = true;
+                        page.loadData(data);
                     },
                     querySearchAsync: function (queryString, fn) {
                         helper.request(that.vue.authListUrl,'post',{keyword: queryString}, function (data) {
@@ -100,15 +102,24 @@ define(['helper', 'config', '/modules/base/validate/menulist.js'],function (help
                             parent_id : data.id,
                             level: parseInt(data.level)+1,
                             join_string: (data.join_string||'-')+data.id+'-',
-                            weight : 0
+                            weight : 0,
+                            is_hide: '是'
                         };
                         this.dialogFormVisible = true;
                         if(this.$refs[formName])
                             this.$refs[formName].clearValidate();
                     },
                     editor: function (data, formName) { //修改菜单
-                        this.form = JSON.parse(JSON.stringify(data));
                         this.dialogFormVisible = true;
+                        var that = this;
+                        setTimeout(function () {
+                            that.form = JSON.parse(JSON.stringify(data));
+                            if(that.form.is_hide){
+                                that.form.is_hide = '否';
+                            }else{
+                                that.form.is_hide = '是';
+                            }
+                        },300);
                     },
                     del: function (data) {
                         var that = this;
@@ -120,7 +131,7 @@ define(['helper', 'config', '/modules/base/validate/menulist.js'],function (help
                             helper.confirm($msg, '删除提醒', function () {
                                 helper.request(that.delUrl,'post',{id: data.id}, function (data) {
                                     if(data.errcode){
-                                        helper.alert(data.errmsg);
+                                        helper.alert(data.errmsg, 'error');
                                         return false;
                                     }
                                     helper.alert(data.errmsg);
@@ -138,7 +149,7 @@ define(['helper', 'config', '/modules/base/validate/menulist.js'],function (help
             this.loadTypeData();
         },
         
-        loadData: function () {
+        loadData: function (loadData) {
             var that = this;
             that.vue.loading = true;
             helper.request(that.vue.listUrl,'post',{where: that.vue.formSearch}, function (data) {
@@ -146,6 +157,9 @@ define(['helper', 'config', '/modules/base/validate/menulist.js'],function (help
             },function () {
                 that.vue.refreshStatus = false;
                 that.vue.loading = false;
+                if(loadData)
+                    loadData.typeLoading = false;
+                loading = false;
             }, false);
 
         },
