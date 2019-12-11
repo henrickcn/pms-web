@@ -19,7 +19,8 @@ define(['helper'],function (helper) {
                         loading: false,
                         login:{
                             username : '',
-                            pass_word : ''
+                            pass_word : '',
+                            device_type: 'pc'
                         },
                         rules: {
                             username : [

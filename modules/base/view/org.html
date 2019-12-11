@@ -1,0 +1,110 @@
+<div class="table-search">
+    <el-collapse v-model="collapseValue" class="hui-search">
+        <el-collapse-item name="1">
+            <template slot="title">
+                <div class="hui-search-title">
+                    <i class="header-icon el-icon-search"></i> 筛选条件
+                </div>
+            </template>
+            <el-form :inline="true" :model="formSearch" size="small" ref="formSearch">
+                <el-form-item label="关键字" prop="keyword">
+                    <el-input autosize placeholder="菜单名称" v-model="formSearch.keyword" clearable></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="handlerCurrentChange(1)">搜索</el-button>
+                    <el-button @click="resetForm('formSearch')">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </el-collapse-item>
+    </el-collapse>
+    <!--工具栏-->
+    <el-row style="margin: 15px 0;">
+        <el-col :span="8">
+            <el-breadcrumb separator-class="el-icon-arrow-right">
+                <el-breadcrumb-item>菜单分类管理</el-breadcrumb-item>
+                <el-breadcrumb-item>{{menuTypeName}}</el-breadcrumb-item>
+            </el-breadcrumb>
+        </el-col>
+        <el-col :span="16" style="text-align: right">
+            <el-button @click="refresh('menuForm')" :loading="refreshStatus" icon="el-icon-refresh" size="mini">刷新</el-button>
+            <el-button @click="add('menuForm')" icon="el-icon-plus" size="mini">添加</el-button>
+        </el-col>
+    </el-row>
+    <el-row>
+        <el-col :span="6">
+            <el-card class="box-card menu-list">
+                <div slot="header" class="clearfix">
+                    <span>菜单分类</span>
+                    <el-button @click="goUrl('pms/base/menu')" style="float: right; padding: 3px 0" type="text">管理分类</el-button>
+                    <el-button @click="reloadTypeData" style="float: right; padding: 3px 0" type="text" :loading="typeLoading">
+                        刷新
+                    </el-button>
+                </div>
+                <div v-for="(item, key) in typeData" :class="'text menu-list-item '+(formSearch.typeId==item.id?'active':'')">
+                    <el-button @click="swicthType(item)"  type="text" :loading="item.typeLoading">
+                        {{item.name}}
+                    </el-button>
+
+                </div>
+            </el-card>
+        </el-col>
+        <el-col :span="18">
+            <el-tree
+                    :data="treeData"
+                    node-key="id"
+                    default-expand-all
+                    :expand-on-click-node="false">
+                      <span class="custom-tree-node" slot-scope="{ node, data }">
+                        <span :style="data.is_hide?'color:#999':''">{{ node.label }}</span>
+                        <span>
+                          <el-button type="text" size="mini" @click="addChildren(data, 'menuForm')">
+                            添加子菜单
+                          </el-button>
+                          <el-button type="text" size="mini" @click="editor(data, 'menuForm')">
+                            修改
+                          </el-button>
+                          <el-button type="text" size="mini" @click="del(data)">
+                            删除
+                          </el-button>
+                        </span>
+                      </span>
+            </el-tree>
+        </el-col>
+    </el-row>
+
+</div>
+
+<el-dialog @close="clearForm('ruleForm')" title="编辑" :visible.sync="dialogFormVisible" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-form :model="form" label-width="120px" :rules="rules" ref="ruleForm" status-icon>
+        <el-form-item label="菜单名称" prop="name">
+            <el-input placeholder="请输入菜单名称"  v-model="form.name" autocomplete="off" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="菜单分类" prop="type_id">
+            <el-select v-model="form.type_id" placeholder="请选择">
+                <el-option v-for="item in typeData" :key="item.id" :label="item.name" :value="item.id"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="对应权限" prop="auth_name">
+            <el-autocomplete v-model="form.auth_name" :fetch-suggestions="querySearchAsync" placeholder="请输入权限名称" @select="handleSelect"></el-autocomplete>
+        </el-form-item>
+        <el-form-item label="菜单链接" prop="url">
+            <el-input placeholder="请输入菜单链接"  v-model="form.url" autocomplete="off" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="菜单图标" prop="url">
+            <el-input placeholder="请输入菜单图标"  v-model="form.icon" autocomplete="off" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="排序ID" prop="weight">
+            <el-input-number min="0" v-model="form.weight"></el-input-number>
+        </el-form-item>
+        <el-form-item label="是否显示" prop="is_hide">
+            <el-select v-model="form.is_hide" placeholder="请选择">
+                <el-option label="是" value="0"></el-option>
+                <el-option label="否" value="1"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="submitForm('ruleForm')">保 存</el-button>
+            <el-button @click="resetForm('ruleForm')">重 置</el-button>
+        </el-form-item>
+    </el-form>
+</el-dialog>

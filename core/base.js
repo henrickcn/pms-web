@@ -84,6 +84,10 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                             {
                                 "name" : "管理员用户-管理",
                                 "url"  : "pms/base/user"
+                            },
+                            {
+                                "name" : "组织架构-管理",
+                                "url"  : "pms/base/org"
                             }
                         ],
                         tabWindowActive: 'pms/base/workspace'
@@ -112,6 +116,23 @@ define(['require', 'config', 'helper'],function (require, config, helper) {
                                 return false;
                             }
                             prevPage = this.tabWindow[key];
+                        }
+                    },
+                    logout: function (item) {
+                        switch (item) {
+                            case 'logout':
+                                helper.request('pms/user/logout','post',{device_type: 'pc'},function (data) {
+                                    if(data.errcode){
+                                        helper.alert(data.errmsg, 'error');
+                                        return false;
+                                    }
+                                    helper.alert(data.errmsg, 'success');
+                                    helper.cookie.set('sessionId','',0);
+                                    window.location.href = "#pms/user/login";
+                                });
+                                break;
+                            case 'usercenter':
+                                break;
                         }
                     }
                 },

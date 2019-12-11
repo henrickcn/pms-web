@@ -46,6 +46,7 @@
         .menu-list-item.active {background: rgba(0,0,0, .05);font-weight: 500;}
         .menu-list-item .el-button--text{color:#333333;display: block;}
         .menu-list .el-card__body{padding: 0px;font-size: 14px;}
+        .el-table .warning-row { background: #f9a3a3;}
     </style>
 </head>
 <body>
@@ -104,16 +105,16 @@
                                         </div>
                                     </div>
                                     <div style="margin-right: 20px">
-                                        <el-dropdown>
+                                        <el-dropdown @command="logout">
                                             <el-avatar class="el-dropdown-link" style="margin-top: 10px;cursor: pointer;" :size="40" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png">
                                                 <img src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
                                             </el-avatar>
                                             <el-dropdown-menu slot="dropdown">
-                                                <el-dropdown-item>
+                                                <el-dropdown-item command="usercenter">
                                                     <i class="el-icon-user"></i>
                                                     个人中心
                                                 </el-dropdown-item>
-                                                <el-dropdown-item divided>
+                                                <el-dropdown-item command="logout" divided >
                                                     <i class="el-icon-s-promotion"></i>
                                                     安全退出
                                                 </el-dropdown-item>

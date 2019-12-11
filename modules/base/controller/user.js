@@ -129,6 +129,12 @@ define(['helper', 'config'],function (helper, config) {
                     },
                     createTimeFormat: function (row, column, cellValue, index) {
                         return row.create_time.substr(0,16)
+                    },
+                    tableRowClassName: function ({row, rowIndex}) {
+                        if(row.user_status == '禁用'){
+                            return 'warning-row';
+                        }
+                        return '';
                     }
                 },
             });

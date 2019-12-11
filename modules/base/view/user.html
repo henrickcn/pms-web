@@ -29,7 +29,7 @@
         </el-col>
     </el-row>
     <!--表格-->
-    <el-table max-height="510" v-loading="loading" size="small" @sort-change="select" :data="tableData" style="width: 100%" row-key="id" border @selection-change="handleSelectionChange">
+    <el-table :row-class-name="tableRowClassName" max-height="510" v-loading="loading" size="small" @sort-change="select" :data="tableData" style="width: 100%" row-key="id" border @selection-change="handleSelectionChange">
         <el-table-column prop="id" align="center" type="selection" width="55"></el-table-column>
         <el-table-column sortable fixed prop="real_name" label="姓名" width="100"></el-table-column>
         <el-table-column label="手机号" prop="phone" width="120"></el-table-column>
